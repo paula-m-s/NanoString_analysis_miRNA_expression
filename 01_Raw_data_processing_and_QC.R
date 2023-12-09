@@ -59,7 +59,7 @@ library(MASS)
 library(reshape2)
 
 # Set working directory
-dir<-"/home/paula/Documentos/mirna_DICER/miRNA_thyroid_Paula"
+dir<- "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis"
 setwd(dir)
 
 
@@ -67,12 +67,12 @@ setwd(dir)
 
 ## 1.1. Load corrected phenodata for all samples ----
 library(readr)
-metadata <-  read_csv("miRNA_metadata_5.csv")
+metadata <-  read_csv("miRNA_metadata_6.csv")
 #View(metadata)
 
 ## 1.2. Load rcc files ----
 nano_data <-  c(file.path(dir,"2018"), file.path(dir,"2022"))
-sample_info <- file.path(dir,"miRNA_metadata_5.csv")
+sample_info <- file.path(dir,"miRNA_metadata_6.csv")
 
 files.RCC <- list.files(nano_data, pattern = 'RCC', full.names = TRUE) # read in RCC files
 
@@ -117,7 +117,7 @@ for (i in 1:length(files.RCC)){
   rcc <- readRcc(files.RCC[i])
   
   raw_expression[, i+2] <- as.numeric(rcc[["Code_Summary"]]$Count)
-  colnames(raw_expression)[i+2] <- strsplit(files.RCC[i], '/')[[1]][8]
+  colnames(raw_expression)[i+2] <- strsplit(files.RCC[i], '/')[[1]][10] #(!) Check the length of the string
 }
 
 ### 1.3.2. pData dataframe ----
@@ -139,7 +139,7 @@ for (i in 1:length(files.RCC)){
   rcc <- readRcc(files.RCC[i])
   
   pData[i, 1:6] <- as.vector(rcc$Sample_Attributes)
-  pData[i, "SampleID"] <- strsplit(files.RCC[i], '/')[[1]][8]
+  pData[i, "SampleID"] <- strsplit(files.RCC[i], '/')[[1]][10] #(!) Check the length of the string
   pData$imagingQC_num[i] <- imagingQC(rcc)$fovRatio
   pData$imagingQC_flag[i] <- imagingQC(rcc)$flag
   pData$bindingDensityQC_flag[i] <- bindingDensityQC(rcc, .1, 2.25)$flag
@@ -217,35 +217,122 @@ if (!file.exists(sub_dir_exists)){
   message("\n Creating folder \n")
 }else{message("\n directory already exists \n")
 }
-#write.csv(raw_expression  ,  "/home/paula/Documentos/mirna_DICER/miRNA_thyroid_Paula/Final_results_d1_d8_thyroid/raw_counts_nanostring_d1_d8_thyroid.csv", row.names = T)
-#write.csv(pData,  "/home/paula/Documentos/mirna_DICER/miRNA_thyroid_Paula/Final_results_d1_d8_thyroid/pData_d1_d8_thyroid.csv", row.names = T)
-#write.csv(fData,  "/home/paula/Documentos/mirna_DICER/miRNA_thyroid_Paula/Final_results_d1_d8_thyroid/class_code_accession_d1_d8_thyroid.csv", row.names = T)
+#write.csv(raw_expression  ,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/raw_counts_nanostring_d1_d8_thyroid.csv", row.names = T)
+#write.csv(pData,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/pData_d1_d8_thyroid.csv", row.names = T)
+#write.csv(fData,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/class_code_accession_d1_d8_thyroid.csv", row.names = T)
 
 ## 1.4. QC Plots ----
 
 ### 1.4.1. Counts per sample----
-end <-  raw_expression[raw_expression$Class == "Endogenous", 3:46] #Change as needed for Endogenous, Housekeeping, SpikeIn...
-colnames(end) <- pData$Tumor_Mut
+pData <- pData[order(pData$Tumor_Type_Mut),]
+rownames(raw_expression) <- raw_expression$Gene
+raw_expression2 <- raw_expression[,pData$SampleID]
+
+
+end <-  raw_expression2[raw_expression$Class == "Endogenous",] #Change as needed for Endogenous, Housekeeping, SpikeIn...
+colnames(end) <- pData$Sample_Names
 data <- as.data.frame(colSums(end))
 data$patients <- rownames(data)
-names(data)[1] <- "counts"
-data <- data[order(data$counts),]
-data$patients <- factor(data$patients, levels = data$patients[order(data$counts)])
-ggplot(data, aes(x = counts, y = patients)) +
+names(data)[1] <- "Counts"
+#data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Counts),]
+data$patients <- factor(data$patients, levels = data$patients[order(data$Counts)])
+g_end <- ggplot(data, aes(x = Counts, y = patients)) +
+  geom_point(shape = 21, fill = "#F8766D", size = 3) +
+  theme_bw() +
+  labs(x = "Counts Endogenous", y = "")
+
+spike <- raw_expression2[raw_expression$Class == "SpikeIn",] #Change as needed for Endogenous, Housekeeping, SpikeIn...
+colnames(spike) <- pData$Sample_Names
+data <- as.data.frame(colSums(spike))
+data$patients <- rownames(data)
+names(data)[1] <- "Counts"
+#data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Counts),]
+data$patients <- factor(data$patients, levels = data$patients[order(data$Counts)])
+g_spike <- ggplot(data, aes(x = Counts, y = patients)) +
+  geom_point(shape = 21, fill = "#E76BF3", size = 3) +
+  theme_bw() +
+  labs(x = "Counts SpikeIn", y = "")
+
+hk <- raw_expression2[raw_expression$Class == "Housekeeping",] #Change as needed for Endogenous, Housekeeping, SpikeIn...
+colnames(hk) <- pData$Sample_Names
+data <- as.data.frame(colSums(hk))
+data$patients <- rownames(data)
+names(data)[1] <- "Counts"
+#data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Counts),]
+data$patients <- factor(data$patients, levels = data$patients[order(data$Counts)])
+g_hk <- ggplot(data, aes(x = Counts, y = patients)) +
+  geom_point(shape = 21, fill = "#A3A500", size = 3) +
+  theme_bw() +
+  labs(x = "Counts Housekeeping", y = "")
+
+posi <- raw_expression2[raw_expression$Class == "Positive",] #Change as needed for Endogenous, Housekeeping, SpikeIn...
+colnames(posi) <- pData$Sample_Names
+data <- as.data.frame(colSums(posi))
+data$patients <- rownames(data)
+names(data)[1] <- "Counts"
+#data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Counts),]
+data$patients <- factor(data$patients, levels = data$patients[order(data$Counts)])
+g_posi <- ggplot(data, aes(x = Counts, y = patients)) +
+  geom_point(shape = 21, fill = "#00BF7D", size = 3) +
+  theme_bw() +
+  labs( x = "Counts Positive", y = "")
+
+neg <- raw_expression2[raw_expression$Class == "Negative",] #Change as needed for Endogenous, Housekeeping, SpikeIn...
+colnames(neg) <- pData$Sample_Names
+data <- as.data.frame(colSums(neg))
+data$patients <- rownames(data)
+names(data)[1] <- "Counts"
+#data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Counts),]
+data$patients <- factor(data$patients, levels = data$patients[order(data$Counts)])
+g_neg <- ggplot(data, aes(x = Counts, y = patients)) +
+  geom_point(shape = 21, fill = "#00B0F6", size = 3) +
+  theme_bw() +
+  labs(x = "Counts Negative", y = "")
+
+
+ggarrange(g_end + theme(axis.text.y = element_text(size=7.5)), g_hk+ theme(axis.text.y = element_text(size=7.5)), g_posi+ theme(axis.text.y = element_text(size=7.5)), g_neg+ theme(axis.text.y = element_text(size=7.5)), g_spike+ theme(axis.text.y = element_text(size=7.5)), nrow = 1, ncol = 5)
+
+data <- as.data.frame(colSums(end))
+data$patients <- rownames(data)
+names(data)[1] <- "Counts"
+data <- data[!grepl(pattern = "Removed", x = data$patients),]
+data <- data[order(data$Endogenous),]
+
+# List of data frames to merge
+dfs_list <- list(data, spike, posi, neg, hk)
+
+# Merge data frames in the list based on the "ID" column
+merged_df <- Reduce(function(x, y) merge(x, y, by = "patients"), dfs_list)
+merged_df <- merged_df[order(merged_df$Endogenous),]
+
+# Example: Assuming your data frame is named 'tidy_df'
+tidy_df <- merged_df %>%
+  gather(key = "variable", value = "value", -patients) %>%
+  arrange(variable, desc(value))
+
+# Your ggplot code
+ggplot(tidy_df, aes(x = value, y = patients)) +
   geom_point(shape = 21, fill = "purple", size = 3) +
   theme_bw() +
-  labs(title = "Counts by Patients", x = "Counts", y = "Patients")
-
+  scale_x_reordered() +
+  labs(title = "Counts by Patients", x = "Counts", y = "Patients") + 
+  facet_grid(.~variable,  scales = "free_x")
 
 ### 2.2.2.  Overal.assay.efficiency----
 
-a <- ggplot(pData, aes(x = SampleID, y = (meanPosRatio), color = Overal.assay.efficiency)) +
-  geom_point() +
+a <- ggplot(pData, aes(x = Sample_Names, y = (meanPosRatio), color = Overal.assay.efficiency)) +
+  geom_point( show.legend = FALSE) +
   theme_bw() +
   theme(#axis.text.x=element_blank(),
     axis.ticks.x=element_blank(),
-    strip.text.x=element_text(size=8)) +
-  ylab("mean pos ctrl counts/overall mean of pos ctrl counts") + xlab("Samples") +
+    strip.text.x=element_text(size=8), 
+    axis.text.x = element_text(size=15)) +
+  ylab("mean pos ctrl counts/overall mean of pos ctrl counts") + xlab("") +
   ggtitle("Overal assay efficiency \n") +
   geom_hline(yintercept=c(1/3,3), color="red")+
   scale_color_manual(values=c("black", "red"), labels=c("No Flag", "Flag"), name = "Flag or no")  + coord_flip()
@@ -253,16 +340,17 @@ print(a)
 
 ### 2.2.3. Binding density QC ----
 
-b <- ggplot(pData, aes(x = SampleID, y = bindingDensityQC_num, color = bindingDensityQC_flag)) + 
-  geom_point() +
+b <- ggplot(pData, aes(x = Sample_Names, y = bindingDensityQC_num, color = bindingDensityQC_flag)) + 
+  geom_point( show.legend = FALSE) +
   theme_bw() +
   theme(#axis.text.x=element_blank(),
     axis.ticks.x=element_blank(),
-    strip.text.x=element_text(size=8)) +
+    strip.text.x=element_text(size=8),
+    axis.text.x = element_text(size=15)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = c(0,3)) +
   ylab("Binding density") +
-  xlab("Samples") +
+  xlab("") +
   ggtitle("Binding Density QC Plot\nFlagged if < 0.05 or > 2.25") +
   geom_hline(yintercept=0.05, color="red") +
   geom_hline(yintercept=2.25, color="red") +
@@ -271,15 +359,16 @@ print(b)
 
 ### 2.2.4. Imaging QC ----
 
-c<- ggplot(pData, aes(x = SampleID, y = (imagingQC_num*100), color = imagingQC_flag)) +
-  geom_point() +
+c<- ggplot(pData, aes(x = Sample_Names, y = (imagingQC_num*100), color = imagingQC_flag)) +
+  geom_point( show.legend = FALSE) +
   theme_bw() +
   theme(#axis.text.x=element_blank(),
     axis.ticks.x=element_blank(),
-    strip.text.x=element_text(size=8)) +
+    strip.text.x=element_text(size=8),
+    axis.text.x = element_text(size=15)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = c(0,1.05 * max(pData$imagingQC_num*100))) +
-  ylab("percentage of FOV counted") + xlab("Samples") +
+  ylab("percentage of FOV counted") + xlab("") +
   ggtitle("FOV \nProblematic if < 75%") +
   geom_hline(yintercept=75, color="red")+
   scale_color_manual(values=c("black", "red"), labels=c("No Flag", "Flag"), name = "Flag or no") + coord_flip()
@@ -287,3 +376,4 @@ print(c)
 
 library(ggpubr)
 ggarrange(a+theme(axis.text.y=element_blank()),b+theme(axis.text.y=element_blank())+coord_flip(),c+theme(axis.text.y=element_blank())+coord_flip(), ncol = 3, nrow = 1)
+ggarrange(a,b,c, ncol = 3, nrow = 1)

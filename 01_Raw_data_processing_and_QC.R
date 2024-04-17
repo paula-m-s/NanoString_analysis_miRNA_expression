@@ -8,14 +8,13 @@
 ###   Pipeline support: 
 ###     http://www.bioconductor.org/packages/release/bioc/vignettes/NanoTube/inst/doc/NanoTube.html 
 ###     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8138885/
-###       https://github.com/bhattacharya-a-bt/CBCS_normalization/
+###     https://github.com/bhattacharya-a-bt/CBCS_normalization/
 ###   Date started: April 2023
-###   Last date modified: August 2023
+###   Last date modified: April 2024
 ###   R version 
 ###   Script: Raw data and QC from NanoString miRNA RCC files. Versions: NS_H_miR_v3a and NS_H_miR_v3b
 ###
-###   Public data source:  
-###   Platform: 
+###   Platform: NanoString. RStudio
 ########################################################################################################################.
 ########################################################################################################################.
 
@@ -31,6 +30,7 @@
 
 #install.packages("xlsx")
 #BiocManager::install("sva")
+# (!) Check the libraries that you would need in advance and install them
 
 # Load packages
 
@@ -59,7 +59,7 @@ library(MASS)
 library(reshape2)
 
 # Set working directory
-dir<- "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis"
+dir<- "C:/path/to/your/files"
 setwd(dir)
 
 
@@ -67,12 +67,12 @@ setwd(dir)
 
 ## 1.1. Load corrected phenodata for all samples ----
 library(readr)
-metadata <-  read_csv("miRNA_metadata_6.csv")
+metadata <-  read_csv("C:/path/to/your/metadata.csv")
 #View(metadata)
 
 ## 1.2. Load rcc files ----
-nano_data <-  c(file.path(dir,"2018"), file.path(dir,"2022"))
-sample_info <- file.path(dir,"miRNA_metadata_6.csv")
+nano_data <-  c(file.path(dir,"/folder/batch/two"), file.path(dir,"/folder/batch/two"))
+sample_info <- file.path(dir,"/path/to/your/metadata.csv")
 
 files.RCC <- list.files(nano_data, pattern = 'RCC', full.names = TRUE) # read in RCC files
 
@@ -175,7 +175,7 @@ table(pData$Overal.assay.efficiency)
 
 
 #Review the results from the positive and negative controls. Positive controls with low counts or negative controls with counts significantly above background can trigger flags and should be checked to see if they indicate more serious issues with the data. 
-for (i in 1:length(raw_expression[,3:46])){
+for (i in 1:length(raw_expression[,3:46])){ #keep in mind the structure of your data
   print(i)
   pData$num.below.bg.end[i] <- colSums((raw_expression[raw_expression$Class == "Endogenous",3:46][i]) < pData$limitOfDetection[i])
   pData$num.below.bg.hk[i] <- colSums((raw_expression[raw_expression$Class == "Housekeeping",3:46][i]) < pData$limitOfDetection[i])
@@ -202,7 +202,8 @@ table(pData$count_flag)
 pData <- merge(pData, metadata, by.x = "SampleID", by.y = "RCC")
 
 
-### 1.3.3. fData dataframe ----
+### 1.3.3. fData dataframe ---- 
+#Dataframe and name column cleaning
 fData <- readRcc(files.RCC[1])$Code_Summary[, c(2, 1, 3)]
 colnames(fData)[1:3] <- c('Gene', 'Class', 'Accession')
 fData$Class <- gsub("Endogenous1", "Endogenous", fData$Class)
@@ -211,15 +212,15 @@ fData$Gene <- gsub("\\|.*", "", fData$Gene)
 
 ### 1.3.4. Write results ----
 # create folder if it doesn't exist
-sub_dir_exists <- "Final_results_d1_d8_thyroid"
+sub_dir_exists <- "/name/of/your/final/resutls/path/"
 if (!file.exists(sub_dir_exists)){
   dir.create(file.path(dir, sub_dir_exists))
   message("\n Creating folder \n")
 }else{message("\n directory already exists \n")
 }
-#write.csv(raw_expression  ,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/raw_counts_nanostring_d1_d8_thyroid.csv", row.names = T)
-#write.csv(pData,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/pData_d1_d8_thyroid.csv", row.names = T)
-#write.csv(fData,  "C:/Users/Usuario/Documents/LAB/POSTDOC/LAB/D1_D8_Analysis/Final_results_d1_d8_thyroid/class_code_accession_d1_d8_thyroid.csv", row.names = T)
+#write.csv(raw_expression  ,  "C:/name/of/your/final/resutls/path/raw_expression.csv", row.names = T)
+#write.csv(pData,  "C:/name/of/your/final/resutls/path/pData.csv", row.names = T)
+#write.csv(fData,  "C:/name/of/your/final/resutls/path/fData.csv.csv", row.names = T)
 
 ## 1.4. QC Plots ----
 

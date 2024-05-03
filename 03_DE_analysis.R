@@ -50,16 +50,7 @@ y <- estimateDisp(miRNA_matrix_tmm, design, robust = T)
 # 4. Contrast matrix ----
 
 # Create contrasts for each combination
-mycontrast <- c("MNG_DGCR8_mutated-MNG_wildtype", 
-                "MNG_DGCR8_mutated-TC_wildtype",
-                "MNG_DICER1_mutated-MNG_wildtype", 
-                "MNG_DICER1_mutated-TC_wildtype",
-                "TC_DGCR8_mutated-TC_wildtype", 
-                "TC_DICER1_mutated-TC_wildtype",
-                "TC_DGCR8_mutated-MNG_wildtype", 
-                "TC_DICER1_mutated-MNG_wildtype",
-                "TC_DICER1_mutated-MNG_DICER1_mutated",
-                "TC_DGCR8_mutated-MNG_DGCR8_mutated")
+#mycontrast 
 
 contrast.matrix <- eval(as.call(c(as.symbol("makeContrasts"),as.list
                                   (mycontrast),levels=list(design))))
@@ -102,7 +93,7 @@ for (i in 1:length(de_genes_list)) {
 
 
 ## 5.1 Save DE results ----
-path_dir <- "Resultados/DE/All_Comp_Exp-Source_robust/"
+path_dir <- "Results/DE/All_Comp_Exp-Source_robust/"
 if (!file.exists(path_dir)){
   dir.create(file.path(dir, path_dir))
   message("\n Creating folder \n")

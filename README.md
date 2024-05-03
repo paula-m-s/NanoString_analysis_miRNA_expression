@@ -28,6 +28,7 @@ The scripts performs a comprehensive analysis of miRNA Nanostring data, focusing
 
 ### Disclaimer
 The analysis is based on an ongoing project leaded by Dr. Barbara Rivera. Relevant sources and references are provided in the script and the manuscript.
+DOI: 10.5281/zenodo.11108513
 
 ### Note
 Feel free to reach out for any questions or clarifications. Contributions and feedback are welcome!

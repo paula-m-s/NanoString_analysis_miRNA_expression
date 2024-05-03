@@ -25,10 +25,6 @@
 ## 1.1. Cleaning pData dataframe ----
 
 # For subsequent pipelines. Keep only the samples that passed all requirements
-pData_f <- pData[pData$count_flag!="Flag" & pData$Sample_Title !="FVPTC-E518K-1-BIS" & pData$Sample_Diagnosis!="normal" & pData$Sample_Names != "FVPTC_WT_3" & pData$Sample_Names != "MNG_WT_3" & pData$Sample_Names != "MNG_D1_4" & pData$Sample_Names != "FTC_D8_1" & pData$Sample_Names != "PDTC_D1_5" & pData$Sample_Names != "FVPTC_D1_8" & pData$Sample_Names != "PDTC_D1_4" , ]
-pData_f <- pData[pData$count_flag!="Flag" & pData$Sample_Title !="FVPTC-E518K-1-BIS" & pData$Sample_Diagnosis!="normal", ]
-#pData_f <- pData[pData$count_flag!="Flag" & pData$Sample_Title!="FVPTC-E518K-1-BIS", ]
-#pData_f <- pData[pData$count_flag!="Flag" & pData$Sample_Title!="FVPTC-E518K-1-BIS" & pData$Sample_Diagnosis!="normal" & pData$Sample_Diagnosis!="normal"  & pData$Sample_Diagnosis!="cPTC" & pData$Tumor_Type_PDTC!="TC_DGCR8_mutated" & pData$Tumor_Type_PDTC!="MNG_DGCR8_mutated" & pData$Sample_Diagnosis!="MNG", ]
 
 
 ## 1.2. Filtering probes ----

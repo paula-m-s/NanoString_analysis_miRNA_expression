@@ -1,7 +1,7 @@
 # Nanostring Data Analysis - miRNA
 ## Overview
-This repository contains R scripts for the analysis of miRNA Nanostring data, focusing on differential expression analysis. The analysis was conducted by Paula Morales-Sanchez, and the scripts are designed to provide insights into the dysregulation of miRNAs in various conditions, specifically tumors with DICER1 and DGCR8 mutations.
-[![Canonical miRNA biogenesis pathway](https://github.com/paula-m-s/NanoString_analysis_d1_d8_thyroid/blob/main/Canonical_pathway_miRNA.png "Canonical miRNA biogenesis pathway")](http:/https://github.com/paula-m-s/NanoString_analysis_d1_d8_thyroid/blob/main/Canonical_pathway_miRNA.png/ "Canonical miRNA biogenesis pathway")
+This repository contains R scripts for the analysis of miRNA Nanostring data, focusing on differential expression analysis. The analysis was conducted by Paula Morales-Sanchez, and the scripts are designed to provide insights into the dysregulation of miRNAs in various conditions.
+
 ## Pipeline Information
 ### Authors
 Paula Morales-Sanchez
@@ -13,13 +13,13 @@ Paula Morales-Sanchez
 
 Date Started: April 2023
 
-Last Date Modified: December 2023
+Last Date Modified: May 2024
 
 ### R Version
 The scripts are compatible with the R programming language. R version 4.1.3 (2022-03-10)
 
 ### Scripts
-The scripts performs a comprehensive analysis of miRNA Nanostring data, focusing on differential expression analysis. It explores the dysregulation of miRNAs in tumors with DICER1 and DGCR8 mutations. Here is a brief explanation for each of the files:
+The scripts performs a comprehensive analysis of miRNA Nanostring data, focusing on differential expression analysis. It explores the dysregulation of miRNAs. Here is a brief explanation for each of the files:
 
 1. 00_pipeline_helpers.R: This file contains functions and helper utilities used across other scripts in the pipeline. Typically, common functions, global configurations, or anything that can be shared among multiple scripts are placed here.
 2. 01_Raw_data_processing_and_QC.R: This file is dedicated to raw data processing and quality control (QC). Here, you might find code related to loading raw data, initial cleaning, data exploration, and any steps necessary to prepare raw data for analysis.
